@@ -110,20 +110,25 @@ with st.sidebar:
 
 # ── Page Routing ─────────────────────────────────────────────────────────────
 if page == "🏠 Dashboard":
-    from pages_code import dashboard
+    import dashboard
     dashboard.show()
+
 elif page == "➕ Add Sale":
-    from pages_code import add_sale
+    import add_sale
     add_sale.show()
+
 elif page == "💸 Expenses":
-    from pages_code import expenses
+    import expenses
     expenses.show()
+
 elif page == "📦 Inventory":
-    from pages_code import inventory
+    import inventory
     inventory.show()
+
 elif page == "📊 Reports":
-    from pages_code import reports
+    import reports
     reports.show()
+
 elif page == "⚙️ Settings":
-    from pages_code import settings
+    import settings
     settings.show()
