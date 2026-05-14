@@ -21,7 +21,7 @@ def show():
     # ─────────────────────────────────────────────
     # PREMIUM STATUS
     # ─────────────────────────────────────────────
-    if settings.get("premium"):
+   if settings.get("premium") == True:
 
         st.success("💎 Premium User")
 
