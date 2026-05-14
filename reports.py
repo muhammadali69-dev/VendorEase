@@ -18,14 +18,11 @@ def show():
 
     curr = settings.get("currency", "₹")
 
-    st.markdown("""
-    <div class='section-header'>📊 Reports</div>
+    st.title("📊 Reports")
 
-    <div class='section-sub'>
-        Weekly & monthly profit & loss —
-        your financial proof
-    </div>
-    """, unsafe_allow_html=True)
+    st.caption(
+        "Weekly & monthly profit & loss — your financial proof"
+    )
 
     sales = du.load_sales()
 
@@ -39,9 +36,9 @@ def show():
 
         return
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # PERIOD SELECTOR
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     period = st.radio(
         "Report Period",
         [
@@ -82,23 +79,26 @@ def show():
         c1, c2 = st.columns(2)
 
         with c1:
+
             start = st.date_input(
                 "From",
                 value=today - timedelta(days=30)
             )
 
         with c2:
+
             end = st.date_input(
                 "To",
                 value=today
             )
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # FILTER DATA
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     def filter_df(df, start, end, column):
 
         if df.empty:
+
             return df
 
         return df[
@@ -107,42 +107,53 @@ def show():
             (df[column].dt.date <= end)
         ]
 
-    period_sales = filter_df(
-        sales,
-        start,
-        end,
-        "created_at"
-    ) if not sales.empty else pd.DataFrame()
+    period_sales = (
+        filter_df(
+            sales,
+            start,
+            end,
+            "created_at"
+        )
+        if not sales.empty
+        else pd.DataFrame()
+    )
 
-    period_exp = filter_df(
-        expenses,
-        start,
-        end,
-        "date"
-    ) if not expenses.empty else pd.DataFrame()
+    period_exp = (
+        filter_df(
+            expenses,
+            start,
+            end,
+            "date"
+        )
+        if not expenses.empty
+        else pd.DataFrame()
+    )
 
     total_sales = (
         period_sales["total"].sum()
-        if not period_sales.empty else 0
+        if not period_sales.empty
+        else 0
     )
 
     total_exp = (
         period_exp["amount"].sum()
-        if not period_exp.empty else 0
+        if not period_exp.empty
+        else 0
     )
 
     net_profit = total_sales - total_exp
 
     margin = (
         (net_profit / total_sales) * 100
-        if total_sales > 0 else 0
+        if total_sales > 0
+        else 0
     )
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # KPI CARDS
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     st.markdown(
-        f"#### Period: "
+        f"### Period: "
         f"{start.strftime('%d %b')} "
         f"→ "
         f"{end.strftime('%d %b %Y')}"
@@ -150,36 +161,29 @@ def show():
 
     c1, c2, c3, c4 = st.columns(4)
 
-    with c1:
-        st.metric(
-            "Total Sales",
-            f"{curr}{total_sales:,.2f}"
-        )
+    c1.metric(
+        "Total Sales",
+        f"{curr}{total_sales:,.2f}"
+    )
 
-    with c2:
-        st.metric(
-            "Total Expenses",
-            f"{curr}{total_exp:,.2f}"
-        )
+    c2.metric(
+        "Total Expenses",
+        f"{curr}{total_exp:,.2f}"
+    )
 
-    with c3:
-        st.metric(
-            "Net Profit",
-            f"{curr}{net_profit:,.2f}",
-            delta=f"{'profit' if net_profit >= 0 else 'loss'}"
-        )
+    c3.metric(
+        "Net Profit",
+        f"{curr}{net_profit:,.2f}"
+    )
 
-    with c4:
-        st.metric(
-            "Profit Margin",
-            f"{margin:.1f}%"
-        )
+    c4.metric(
+        "Profit Margin",
+        f"{margin:.1f}%"
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # DAILY TREND CHART
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     if not period_sales.empty or not period_exp.empty:
 
         date_range = pd.date_range(
@@ -239,60 +243,25 @@ def show():
         fig.add_trace(go.Bar(
             name="Sales",
             x=dates_str,
-            y=daily_sales.values,
-            marker_color="#0d5c44",
-            opacity=0.8
+            y=daily_sales.values
         ))
 
         fig.add_trace(go.Bar(
             name="Expenses",
             x=dates_str,
-            y=daily_exp.values,
-            marker_color="#e05c5c",
-            opacity=0.75
+            y=daily_exp.values
         ))
 
         fig.add_trace(go.Scatter(
             name="Net Profit",
             x=dates_str,
             y=profit_line,
-            mode="lines+markers",
-            line=dict(
-                color="#f0a500",
-                width=2.5
-            ),
-            marker=dict(size=6)
+            mode="lines+markers"
         ))
 
         fig.update_layout(
             barmode="group",
-            height=320,
-            plot_bgcolor="white",
-            paper_bgcolor="white",
-            font=dict(
-                family="Plus Jakarta Sans, sans-serif",
-                size=12
-            ),
-            margin=dict(
-                l=10,
-                r=10,
-                t=30,
-                b=10
-            ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                x=1,
-                xanchor="right"
-            ),
-            yaxis=dict(
-                gridcolor="#f0f0f0",
-                tickprefix=curr
-            ),
-            xaxis=dict(
-                gridcolor="#f0f0f0"
-            ),
+            height=350,
             title="Daily Sales vs Expenses"
         )
 
@@ -301,133 +270,12 @@ def show():
             use_container_width=True
         )
 
-    # ─────────────────────────────────────────────────────────────
-    # CATEGORY BREAKDOWN
-    # ─────────────────────────────────────────────────────────────
-    col_l, col_r = st.columns(2)
-
-    with col_l:
-
-        st.markdown("#### 🏷️ Sales by Category")
-
-        if not period_sales.empty:
-
-            cat_sales = (
-                period_sales
-                .groupby("category")["total"]
-                .sum()
-                .reset_index()
-            )
-
-            fig2 = px.bar(
-                cat_sales,
-                x="total",
-                y="category",
-                orientation="h",
-                color="total",
-                color_continuous_scale=[
-                    "#9fe1cb",
-                    "#0d5c44"
-                ]
-            )
-
-            fig2.update_layout(
-                height=250,
-                margin=dict(
-                    l=0,
-                    r=0,
-                    t=0,
-                    b=0
-                ),
-                paper_bgcolor="white",
-                plot_bgcolor="white",
-                coloraxis_showscale=False,
-                xaxis=dict(
-                    tickprefix=curr,
-                    gridcolor="#f0f0f0"
-                ),
-                yaxis=dict(title=""),
-                font=dict(
-                    family="Plus Jakarta Sans, sans-serif",
-                    size=12
-                )
-            )
-
-            st.plotly_chart(
-                fig2,
-                use_container_width=True
-            )
-
-        else:
-
-            st.info(
-                "No sales in this period."
-            )
-
-    with col_r:
-
-        st.markdown("#### 💸 Expenses by Category")
-
-        if not period_exp.empty:
-
-            cat_exp = (
-                period_exp
-                .groupby("category")["amount"]
-                .sum()
-                .reset_index()
-            )
-
-            fig3 = px.bar(
-                cat_exp,
-                x="amount",
-                y="category",
-                orientation="h",
-                color="amount",
-                color_continuous_scale=[
-                    "#fdd",
-                    "#c0392b"
-                ]
-            )
-
-            fig3.update_layout(
-                height=250,
-                margin=dict(
-                    l=0,
-                    r=0,
-                    t=0,
-                    b=0
-                ),
-                paper_bgcolor="white",
-                plot_bgcolor="white",
-                coloraxis_showscale=False,
-                xaxis=dict(
-                    tickprefix=curr,
-                    gridcolor="#f0f0f0"
-                ),
-                yaxis=dict(title=""),
-                font=dict(
-                    family="Plus Jakarta Sans, sans-serif",
-                    size=12
-                )
-            )
-
-            st.plotly_chart(
-                fig3,
-                use_container_width=True
-            )
-
-        else:
-
-            st.info(
-                "No expenses in this period."
-            )
-
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # TOP ITEMS
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     if not period_sales.empty:
 
-        st.markdown("#### 🏆 Top Selling Items")
+        st.subheader("🏆 Top Selling Items")
 
         top_items = (
             period_sales.groupby("item")
@@ -461,112 +309,38 @@ def show():
             hide_index=True
         )
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # PROFIT & LOSS
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     st.markdown("---")
 
-    st.markdown("#### 📄 Profit & Loss Statement")
+    st.subheader("📄 Profit & Loss Statement")
 
-    st.markdown(f"""
-    <div style='background:white;
-                border:1px solid #e0ede8;
-                border-radius:14px;
-                padding:24px;
-                max-width:500px'>
+    p1, p2, p3 = st.columns(3)
 
-        <div style='font-weight:700;
-                    font-size:16px;
-                    color:#0a3d2e;
-                    margin-bottom:16px'>
+    p1.metric(
+        "Gross Revenue",
+        f"{curr}{total_sales:,.2f}"
+    )
 
-            P&L —
-            {start.strftime('%d %b')}
-            to
-            {end.strftime('%d %b %Y')}
+    p2.metric(
+        "Expenses",
+        f"{curr}{total_exp:,.2f}"
+    )
 
-        </div>
+    p3.metric(
+        "Net Profit",
+        f"{curr}{net_profit:,.2f}"
+    )
 
-        <div style='display:flex;
-                    justify-content:space-between;
-                    padding:8px 0;
-                    border-bottom:1px solid #f0f0f0'>
-
-            <span style='color:#333'>
-                Gross Revenue
-            </span>
-
-            <span style='font-weight:600;
-                         color:#0d5c44'>
-
-                {curr}{total_sales:,.2f}
-
-            </span>
-
-        </div>
-
-        <div style='display:flex;
-                    justify-content:space-between;
-                    padding:8px 0;
-                    border-bottom:1px solid #f0f0f0'>
-
-            <span style='color:#333'>
-                Total Expenses
-            </span>
-
-            <span style='font-weight:600;
-                         color:#c0392b'>
-
-                − {curr}{total_exp:,.2f}
-
-            </span>
-
-        </div>
-
-        <div style='display:flex;
-                    justify-content:space-between;
-                    padding:12px 0;
-                    margin-top:4px;
-                    border-top:2px solid #0d5c44'>
-
-            <span style='font-weight:700;
-                         font-size:16px;
-                         color:#0a3d2e'>
-
-                Net Profit
-
-            </span>
-
-            <span style='font-weight:700;
-                         font-size:18px;
-                         color:{"#0d5c44" if net_profit >= 0 else "#c0392b"}'>
-
-                {curr}{net_profit:,.2f}
-
-            </span>
-
-        </div>
-
-        <div style='font-size:12px;
-                    color:#6b7c74;
-                    margin-top:8px'>
-
-            Profit Margin:
-            {margin:.1f}%
-
-        </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # EXPORTS
-    # ─────────────────────────────────────────────────────────────
-    st.markdown("<br>", unsafe_allow_html=True)
+    # ─────────────────────────────────────────────
+    st.markdown("---")
 
-    col_e1, col_e2 = st.columns(2)
+    e1, e2 = st.columns(2)
 
-    with col_e1:
+    with e1:
 
         if not period_sales.empty:
 
@@ -583,7 +357,7 @@ def show():
                 "text/csv"
             )
 
-    with col_e2:
+    with e2:
 
         if not period_exp.empty:
 
