@@ -18,33 +18,6 @@ def premium_upgrade():
 
     user_email = user.email
 
-    # GET CURRENT USER SETTINGS
-    response = (
-        supabase.table("settings")
-        .select("*")
-        .eq("user_email", user_email)
-        .execute()
-    )
-
-    premium = False
-
-    if response.data:
-
-        premium = response.data[0].get(
-            "premium",
-            False
-        )
-
-    # IF PREMIUM ALREADY ACTIVE
-    if premium == True:
-
-        st.success(
-            "🚀 Premium Account Active"
-        )
-
-        return
-
-    # PREMIUM FEATURES
     st.info(
         """
 Upgrade to Premium for:
@@ -53,17 +26,17 @@ Upgrade to Premium for:
 ✅ Advanced analytics  
 ✅ AI business insights  
 ✅ Inventory intelligence  
-✅ Premium reports  
+✅ Premium reports
 """
     )
 
     st.write("### ₹99 / month")
 
-    # ACTIVATE BUTTON
     if st.button("Activate Premium 🚀"):
 
         try:
 
+            # UPDATE DATABASE
             supabase.table("settings").update({
                 "premium": True
             }).eq(
@@ -71,14 +44,29 @@ Upgrade to Premium for:
                 user_email
             ).execute()
 
+            # FORCE SESSION UPDATE
+            st.session_state["premium"] = True
+
             st.success(
                 "🎉 Premium Activated Successfully!"
             )
 
-            st.rerun()
-
         except Exception as e:
 
             st.error(
-                f"Activation Failed: {e}"
+                f"Error: {e}"
             )
+
+    # SHOW ACTIVE STATUS
+    settings = (
+        supabase.table("settings")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    if settings.data:
+
+        if settings.data[0].get("premium") == True:
+
+            st.success("🚀 Premium Account Active")
