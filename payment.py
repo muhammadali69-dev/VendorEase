@@ -9,41 +9,45 @@ def premium_upgrade():
 
     st.subheader("💎 VendorEase Premium")
 
-    st.info(
-        """
-Upgrade to Premium for:
-
-✅ Unlimited transactions  
-✅ Advanced analytics  
-✅ AI business insights  
-✅ Inventory intelligence  
-✅ Premium reports
-"""
-    )
-
     user = st.session_state.get("user")
+
+    st.write("USER:", user)
 
     if not user:
 
-        st.error("Please login first")
+        st.error("No logged in user")
         return
 
     user_email = user.email
 
+    st.write("EMAIL:", user_email)
+
     if st.button("Activate Premium 🚀"):
 
-        # FORCE PREMIUM
-        supabase.table("settings").update({
-            "premium": True
-        }).eq(
-            "user_email",
-            user_email
-        ).execute()
+        st.write("BUTTON CLICKED")
 
-        st.success(
-            "🎉 Premium Activated!"
-        )
+        try:
 
-        st.write(
-            "Refresh the page to see Premium status."
-        )
+            response = (
+                supabase.table("settings")
+                .update({
+                    "premium": True
+                })
+                .eq(
+                    "user_email",
+                    user_email
+                )
+                .execute()
+            )
+
+            st.write(response)
+
+            st.success(
+                "Premium Activated!"
+            )
+
+        except Exception as e:
+
+            st.error(
+                f"ERROR: {e}"
+            )
