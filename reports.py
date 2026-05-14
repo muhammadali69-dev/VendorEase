@@ -23,7 +23,7 @@ def show():
     )
 
     # DATE FILTER
-    st.subheader("📅 Select Period")
+    st.subheader("🗓️ Select Period")
 
     c1, c2 = st.columns(2)
 
@@ -46,13 +46,17 @@ def show():
 
     if not sales.empty:
 
+        sales["created_at"] = pd.to_datetime(
+            sales["created_at"]
+        )
+
         period_sales = sales[
             (
                 sales["created_at"].dt.date >= start
             )
             &
             (
-               sales["created_at"].dt.date <= end
+                sales["created_at"].dt.date <= end
             )
         ]
 
@@ -61,13 +65,17 @@ def show():
 
     if not expenses.empty:
 
+        expenses["created_at"] = pd.to_datetime(
+            expenses["created_at"]
+        )
+
         period_exp = expenses[
             (
-               expenses["created_at"].dt.date >= start
+                expenses["created_at"].dt.date >= start
             )
             &
             (
-               expenses["created_at"].dt.date <= end
+                expenses["created_at"].dt.date <= end
             )
         ]
 
@@ -87,22 +95,28 @@ def show():
     profit = total_sales - total_expenses
 
     # METRICS
-    c1, c2, c3 = st.columns(3)
+    m1, m2, m3 = st.columns(3)
 
-    c1.metric(
-        "Sales",
-        f"{curr}{total_sales:,.2f}"
-    )
+    with m1:
 
-    c2.metric(
-        "Expenses",
-        f"{curr}{total_expenses:,.2f}"
-    )
+        st.metric(
+            "💰 Sales",
+            f"{curr}{total_sales:,.2f}"
+        )
 
-    c3.metric(
-        "Profit",
-        f"{curr}{profit:,.2f}"
-    )
+    with m2:
+
+        st.metric(
+            "💸 Expenses",
+            f"{curr}{total_expenses:,.2f}"
+        )
+
+    with m3:
+
+        st.metric(
+            "📈 Profit",
+            f"{curr}{profit:,.2f}"
+        )
 
     st.markdown("---")
 
@@ -126,7 +140,7 @@ def show():
     st.markdown("---")
 
     # EXPENSE TABLE
-    st.subheader("💸 Expense Records")
+    st.subheader("💳 Expense Records")
 
     if not period_exp.empty:
 
@@ -144,7 +158,7 @@ def show():
 
     st.markdown("---")
 
-    # DOWNLOADS
+    # EXPORTS
     st.subheader("⬇️ Export Data")
 
     e1, e2 = st.columns(2)
