@@ -12,8 +12,11 @@ def show():
 
     settings = du.load_settings()
 
-    # PREMIUM STATUS
-    if settings.get("premium") == True:
+    premium_status = settings.get("premium")
+
+    st.write("DEBUG PREMIUM:", premium_status)
+
+    if premium_status:
 
         st.success("💎 Premium User")
 
