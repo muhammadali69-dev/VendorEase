@@ -230,13 +230,40 @@ def save_inventory(df):
 
 
 # ── SETTINGS ─────────────────────────────────────────────────────────────────
+# ── SETTINGS (SUPABASE) ─────────────────────────────────────────────
 def load_settings():
 
-    init_files()
+    import streamlit as st
+    from supabase_client import supabase
 
-    df = pd.read_csv(SETTINGS_FILE)
+    user = st.session_state.get("user")
 
-    return df.iloc[0].to_dict()
+    user_email = user.email if user else ""
+
+    response = (
+        supabase.table("settings")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    if response.data:
+
+        return response.data[0]
+
+    default_settings = {
+        "stall_name": "My Stall",
+        "currency": "₹",
+        "owner_name": "",
+        "categories": "Food,Beverages,Snacks,Vegetables,Other",
+        "user_email": user_email
+    }
+
+    supabase.table("settings").insert(
+        default_settings
+    ).execute()
+
+    return default_settings
 
 
 def save_settings(
@@ -246,15 +273,42 @@ def save_settings(
     categories
 ):
 
-    df = pd.DataFrame([{
+    import streamlit as st
+    from supabase_client import supabase
+
+    user = st.session_state.get("user")
+
+    user_email = user.email if user else ""
+
+    existing = (
+        supabase.table("settings")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    data = {
         "stall_name": stall_name,
         "currency": currency,
         "owner_name": owner_name,
-        "categories": categories
-    }])
+        "categories": categories,
+        "user_email": user_email
+    }
 
-    df.to_csv(SETTINGS_FILE, index=False)
+    if existing.data:
 
+        supabase.table("settings").update(
+            data
+        ).eq(
+            "user_email",
+            user_email
+        ).execute()
+
+    else:
+
+        supabase.table("settings").insert(
+            data
+        ).execute()
 
 # ── ANALYTICS ────────────────────────────────────────────────────────────────
 def today_summary():
