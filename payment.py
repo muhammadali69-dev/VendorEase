@@ -11,20 +11,17 @@ def premium_upgrade():
 
     user = st.session_state.get("user")
 
-    st.write("USER:", user)
-
     if not user:
 
-        st.error("No logged in user")
+        st.error("Please login first")
         return
 
-    user_email = user.email
+    # CORRECT EMAIL ACCESS
+    user_email = user.user_metadata["email"]
 
-    st.write("EMAIL:", user_email)
+    st.write(f"Logged in as: {user_email}")
 
     if st.button("Activate Premium 🚀"):
-
-        st.write("BUTTON CLICKED")
 
         try:
 
@@ -43,7 +40,7 @@ def premium_upgrade():
             st.write(response)
 
             st.success(
-                "Premium Activated!"
+                "🎉 Premium Activated!"
             )
 
         except Exception as e:
