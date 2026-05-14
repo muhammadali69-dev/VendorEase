@@ -374,7 +374,3 @@ def show():
             )
 
     st.markdown("---")
-
-    import payment
-
-    payment.premium_upgrade()
