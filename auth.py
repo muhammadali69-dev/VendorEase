@@ -22,7 +22,7 @@ def login():
             st.rerun()
 
         except Exception as e:
-            st.error("Invalid Email or Password")
+    st.error(str(e))
 
 
 def signup():
