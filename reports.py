@@ -373,9 +373,6 @@ def show():
                 f"expenses_{start}_{end}.csv",
                 "text/csv"
             )
-import payment
+    import payment
 
-
-
-
-payment.premium_upgrade()
+    payment.premium_upgrade()
