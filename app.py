@@ -100,20 +100,10 @@ header[data-testid="stHeader"] { background: transparent; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Sidebar Navigation ───────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("## 📈 VendorEase")
-    st.markdown("---")
-    page = st.radio(
-        "Navigate",
-        ["🏠 Dashboard", "➕ Add Sale", "💸 Expenses", "📦 Inventory", "📊 Reports", "⚙️ Settings"],
-        label_visibility="collapsed"
-    )
-    st.markdown("---")
-    st.markdown("<small style='opacity:0.6'>Smart Profit & Sales Tracker<br>for Street Vendors</small>", unsafe_allow_html=True)
-
-# ── Page Routing ─────────────────────────────────────────────────────────────
+# ── Authentication ──────────────────────────────────────────────────────────
 if "user" not in st.session_state:
+
+    st.markdown("## 🔐 VendorEase Authentication")
 
     menu = st.sidebar.selectbox(
         "Menu",
@@ -128,6 +118,38 @@ if "user" not in st.session_state:
 
     st.stop()
 
+# ── Sidebar Navigation ───────────────────────────────────────────────────────
+with st.sidebar:
+
+    st.markdown("## 📈 VendorEase")
+    st.success("✅ Logged In")
+
+    # Logout Button
+    auth.logout()
+
+    st.markdown("---")
+
+    page = st.radio(
+        "Navigate",
+        [
+            "🏠 Dashboard",
+            "➕ Add Sale",
+            "💸 Expenses",
+            "📦 Inventory",
+            "📊 Reports",
+            "⚙️ Settings"
+        ],
+        label_visibility="collapsed"
+    )
+
+    st.markdown("---")
+
+    st.markdown(
+        "<small style='opacity:0.6'>Smart Profit & Sales Tracker<br>for Street Vendors</small>",
+        unsafe_allow_html=True
+    )
+
+# ── Page Routing ─────────────────────────────────────────────────────────────
 if page == "🏠 Dashboard":
     import dashboard
     dashboard.show()
