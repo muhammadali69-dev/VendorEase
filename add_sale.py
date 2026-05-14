@@ -22,30 +22,30 @@ def show():
         ).split(",")
     ]
 
-st.markdown(
-    f"""
-    <div style='background:#e8f5f0;
-                border-radius:10px;
-                padding:14px 18px;
-                margin:8px 0'>
+            st.markdown(
+                f"""
+                <div style='background:#e8f5f0;
+                            border-radius:10px;
+                            padding:14px 18px;
+                            margin:8px 0'>
 
-        <span style='font-size:13px;
-                     color:#0a3d2e'>
-            Total Amount
-        </span>
+                    <span style='font-size:13px;
+                                 color:#0a3d2e'>
+                        Total Amount
+                    </span>
 
-        <br>
+                    <br>
 
-        <span style='font-size:26px;
-                     font-weight:700;
-                     color:#0d5c44'>
-            {curr}{total:,.2f}
-        </span>
+                    <span style='font-size:26px;
+                                 font-weight:700;
+                                 color:#0d5c44'>
+                        {curr}{total:,.2f}
+                    </span>
 
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
     col1, col2 = st.columns([1.2, 1])
 
     # ─────────────────────────────────────────────────────────────
