@@ -356,7 +356,6 @@ def show():
                 f"sales_{start}_{end}.csv",
                 "text/csv"
             )
-
     with e2:
 
         if not period_exp.empty:
@@ -373,6 +372,10 @@ def show():
                 f"expenses_{start}_{end}.csv",
                 "text/csv"
             )
+
+    st.markdown("---")
+
     import payment
 
     payment.premium_upgrade()
+  
