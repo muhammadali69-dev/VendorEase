@@ -21,28 +21,23 @@ def premium_upgrade():
 
     st.write(f"Logged in as: {user_email}")
 
-    if st.button("Activate Premium 🚀"):
+   if st.button("Activate Premium 🚀"):
 
-        try:
+    st.write("BUTTON WORKING")
 
-            response = (
-                supabase.table("settings")
-                .update({
-                    "premium": True
-                })
-                .eq(
-                    "user_email",
-                    user_email
-                )
-                .execute()
-            )
+    response = (
+        supabase.table("settings")
+        .update({
+            "premium": True
+        })
+        .eq(
+            "user_email",
+            user_email
+        )
+        .execute()
+    )
 
-            st.write(response)
-
-            st.success(
-                "🎉 Premium Activated!"
-            )
-
+    st.write(response)
         except Exception as e:
 
             st.error(
