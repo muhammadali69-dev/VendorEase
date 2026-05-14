@@ -108,12 +108,25 @@ def add_sale(item, category, qty, price):
     }).execute()
 
 
-# ── EXPENSES ─────────────────────────────────────────────────────────────────
+# ── EXPENSES (SUPABASE) ─────────────────────────────────────────────
 def load_expenses():
 
-    init_files()
+    import pandas as pd
+    import streamlit as st
+    from supabase_client import supabase
 
-    df = pd.read_csv(EXPENSES_FILE)
+    user = st.session_state.get("user")
+
+    user_email = user.email if user else ""
+
+    response = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    df = pd.DataFrame(response.data)
 
     if not df.empty:
 
@@ -126,33 +139,25 @@ def load_expenses():
 
 def add_expense(description, category, amount):
 
-    init_files()
+    import streamlit as st
+    from supabase_client import supabase
 
-    df = load_expenses()
+    user = st.session_state.get("user")
 
-    new_row = pd.DataFrame([{
+    user_email = user.email if user else "unknown"
+
+    supabase.table("expenses").insert({
         "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "description": description,
         "category": category,
-        "amount": round(amount, 2)
-    }])
-
-    df = pd.concat(
-        [df, new_row],
-        ignore_index=True
-    )
-
-    df.to_csv(EXPENSES_FILE, index=False)
+        "amount": round(amount, 2),
+        "user_email": user_email
+    }).execute()
 
 
 def delete_expense(index):
 
-    df = load_expenses()
-
-    df = df.drop(index=index).reset_index(drop=True)
-
-    df.to_csv(EXPENSES_FILE, index=False)
-
+    pass
 
 # ── INVENTORY ────────────────────────────────────────────────────────────────
 def load_inventory():
