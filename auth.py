@@ -12,17 +12,21 @@ def login():
     if st.button("Login"):
 
         try:
+
             response = supabase.auth.sign_in_with_password({
                 "email": email,
                 "password": password
             })
 
             st.session_state["user"] = response.user
+
             st.success("Login Successful!")
+
             st.rerun()
 
         except Exception as e:
-    st.error(str(e))
+
+            st.error(str(e))
 
 
 def signup():
@@ -35,6 +39,7 @@ def signup():
     if st.button("Sign Up"):
 
         try:
+
             supabase.auth.sign_up({
                 "email": email,
                 "password": password
@@ -43,7 +48,8 @@ def signup():
             st.success("Account Created! Please Login.")
 
         except Exception as e:
-            st.error("Signup Failed")
+
+            st.error(str(e))
 
 
 def logout():
@@ -54,6 +60,5 @@ def logout():
 
         st.session_state.clear()
 
-        st.success("Logged Out")
-
         st.rerun()
+     
