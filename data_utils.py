@@ -286,7 +286,6 @@ def today_summary():
         "num_transactions": len(today_sales)
     }
 
-
 def weekly_summary():
 
     sales = load_sales()
