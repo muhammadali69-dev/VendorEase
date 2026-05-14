@@ -58,6 +58,46 @@ def add_sale(item: str, category: str, qty: float, price: float):
     df = pd.concat([df, new_row], ignore_index=True)
     df.to_csv(SALES_FILE, index=False)
 
+def add_sale(item: str, category: str, qty: float, price: float):
+
+    import sqlite3
+    from datetime import datetime
+
+    conn = sqlite3.connect("vendorease.db")
+    cursor = conn.cursor()
+
+    # Create table if it doesn't exist
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sales (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
+        item TEXT,
+        category TEXT,
+        qty REAL,
+        price REAL,
+        total REAL
+    )
+    """)
+
+    total = round(qty * price, 2)
+
+    # Insert sale data
+    cursor.execute("""
+    INSERT INTO sales (date, item, category, qty, price, total)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        item,
+        category,
+        qty,
+        price,
+        total
+    ))
+
+    conn.commit()
+    conn.close()
+
+
 def delete_sale(index: int):
     df = load_sales()
     df = df.drop(index=index).reset_index(drop=True)
