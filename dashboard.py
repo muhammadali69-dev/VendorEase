@@ -18,18 +18,12 @@ def show():
 
     curr = summary["currency"]
 
-    st.markdown(f"""
-    <div style='margin-bottom:8px'>
-        <div class='section-header'>
-            👋 Good day, {summary['stall_name']}
-        </div>
+    st.title(f"👋 Good day, {summary['stall_name']}")
 
-        <div class='section-sub'>
-            Here's how your business is doing today —
-            {date.today().strftime('%d %B %Y')}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.caption(
+        f"Here's how your business is doing today — "
+        f"{date.today().strftime('%d %B %Y')}"
+    )
 
     # ─────────────────────────────────────────────────────────────
     # KPI ROW
