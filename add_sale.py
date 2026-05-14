@@ -22,7 +22,7 @@ def show():
         ).split(",")
     ]
 
-    st.markdown("## ➕ Add Sale")
+    st.title("➕ Add Sale")
 
     col1, col2 = st.columns([1.2, 1])
 
@@ -31,7 +31,7 @@ def show():
     # ─────────────────────────────────────────────
     with col1:
 
-        st.markdown("### 🧾 New Transaction")
+        st.subheader("🧾 New Transaction")
 
         with st.form("add_sale_form", clear_on_submit=True):
 
@@ -67,17 +67,45 @@ def show():
 
             total = qty * price
 
-           st.metric(
-    "Total Amount",
-    f"{curr}{total:,.2f}"
-)
+            st.metric(
+                "Total Amount",
+                f"{curr}{total:,.2f}"
+            )
+
+            submitted = st.form_submit_button(
+                "✅ Record Sale",
+                use_container_width=True
+            )
+
+            if submitted:
+
+                if not item.strip():
+
+                    st.error("Please enter item name.")
+
+                elif price <= 0:
+
+                    st.error("Please enter valid price.")
+
+                else:
+
+                    du.add_sale(
+                        item.strip(),
+                        category,
+                        qty,
+                        price
+                    )
+
+                    st.success(
+                        f"Sale added successfully!"
+                    )
 
     # ─────────────────────────────────────────────
     # TODAY SALES
     # ─────────────────────────────────────────────
     with col2:
 
-        st.markdown("### 📋 Today's Sales")
+        st.subheader("📋 Today's Sales")
 
         sales = du.load_sales()
 
@@ -103,6 +131,19 @@ def show():
                     len(today_sales)
                 )
 
+                st.dataframe(
+                    today_sales[
+                        [
+                            "item",
+                            "qty",
+                            "price",
+                            "total"
+                        ]
+                    ],
+                    use_container_width=True,
+                    hide_index=True
+                )
+
             else:
 
                 st.info("No sales today yet.")
@@ -116,7 +157,7 @@ def show():
     # ─────────────────────────────────────────────
     st.markdown("---")
 
-    st.markdown("### 📅 Sales History")
+    st.subheader("📅 Sales History")
 
     if not sales.empty:
 
