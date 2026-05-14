@@ -356,7 +356,7 @@ def show():
                 f"sales_{start}_{end}.csv",
                 "text/csv"
             )
-          with e2:
+     with e2:
 
         if not period_exp.empty:
 
