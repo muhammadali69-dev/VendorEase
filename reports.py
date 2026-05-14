@@ -65,17 +65,17 @@ def show():
 
     if not expenses.empty:
 
-        expenses["created_at"] = pd.to_datetime(
-            expenses["created_at"]
+        expenses["date"] = pd.to_datetime(
+            expenses["date"]
         )
 
         period_exp = expenses[
             (
-                expenses["created_at"].dt.date >= start
+                expenses["date"].dt.date >= start
             )
             &
             (
-                expenses["created_at"].dt.date <= end
+                expenses["date"].dt.date <= end
             )
         ]
 
