@@ -55,7 +55,10 @@ def load_sales():
     df = pd.DataFrame(response.data)
 
     if not df.empty:
-        df["created_at"] = pd.to_datetime(df["created_at"])
+
+        df["created_at"] = pd.to_datetime(
+            df["created_at"]
+        )
 
     return df
 def add_sale(item, category, qty, price):
