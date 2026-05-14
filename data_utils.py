@@ -153,23 +153,27 @@ def add_expense(description, category, amount):
         "amount": round(amount, 2),
         "user_email": user_email
     }).execute()
-
-
-def delete_expense(index):
-
-    pass
-
-# ── INVENTORY ────────────────────────────────────────────────────────────────
+# ── INVENTORY (SUPABASE) ────────────────────────────────────────────
 def load_inventory():
 
-    init_files()
+    import pandas as pd
+    import streamlit as st
+    from supabase_client import supabase
 
-    return pd.read_csv(INVENTORY_FILE)
+    user = st.session_state.get("user")
 
+    user_email = user.email if user else ""
 
-def save_inventory(df):
+    response = (
+        supabase.table("inventory")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
 
-    df.to_csv(INVENTORY_FILE, index=False)
+    df = pd.DataFrame(response.data)
+
+    return df
 
 
 def add_inventory_item(
@@ -180,33 +184,49 @@ def add_inventory_item(
     low_stock_alert
 ):
 
-    init_files()
+    import streamlit as st
+    from supabase_client import supabase
 
-    df = load_inventory()
+    user = st.session_state.get("user")
 
-    if item in df["item"].values:
+    user_email = user.email if user else "unknown"
 
-        df.loc[
-            df["item"] == item,
-            "quantity"
-        ] += quantity
+    existing = (
+        supabase.table("inventory")
+        .select("*")
+        .eq("item", item)
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    if existing.data:
+
+        current_qty = existing.data[0]["quantity"]
+
+        new_qty = current_qty + quantity
+
+        supabase.table("inventory").update({
+            "quantity": new_qty
+        }).eq(
+            "id",
+            existing.data[0]["id"]
+        ).execute()
 
     else:
 
-        new_row = pd.DataFrame([{
+        supabase.table("inventory").insert({
             "item": item,
             "category": category,
             "quantity": quantity,
             "unit": unit,
-            "low_stock_alert": low_stock_alert
-        }])
+            "low_stock_alert": low_stock_alert,
+            "user_email": user_email
+        }).execute()
 
-        df = pd.concat(
-            [df, new_row],
-            ignore_index=True
-        )
 
-    df.to_csv(INVENTORY_FILE, index=False)
+def save_inventory(df):
+
+    pass
 
 
 # ── SETTINGS ─────────────────────────────────────────────────────────────────
