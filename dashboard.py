@@ -1,11 +1,9 @@
 import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 import sys
 import os
 
-from datetime import date, timedelta
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -17,16 +15,23 @@ def show():
     summary = du.today_summary()
 
     curr = summary["currency"]
+
     settings = du.load_settings()
 
-if settings.get("premium"):
+    # ─────────────────────────────────────────────
+    # PREMIUM STATUS
+    # ─────────────────────────────────────────────
+    if settings.get("premium"):
 
-    st.success("💎 Premium User")
+        st.success("💎 Premium User")
 
-else:
+    else:
 
-    st.warning("🆓 Free Plan")
+        st.warning("🆓 Free Plan")
 
+    # ─────────────────────────────────────────────
+    # HEADER
+    # ─────────────────────────────────────────────
     st.title(f"👋 Good day, {summary['stall_name']}")
 
     st.caption(
@@ -34,53 +39,43 @@ else:
         f"{date.today().strftime('%d %B %Y')}"
     )
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # KPI ROW
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     c1, c2, c3, c4 = st.columns(4)
 
-    with c1:
-        st.metric(
-            "💰 Today's Sales",
-            f"{curr}{summary['total_sales']:,.2f}"
-        )
+    c1.metric(
+        "💰 Today's Sales",
+        f"{curr}{summary['total_sales']:,.2f}"
+    )
 
-    with c2:
-        st.metric(
-            "💸 Today's Expenses",
-            f"{curr}{summary['total_expenses']:,.2f}"
-        )
+    c2.metric(
+        "💸 Today's Expenses",
+        f"{curr}{summary['total_expenses']:,.2f}"
+    )
 
-    with c3:
+    c3.metric(
+        "📈 Net Profit",
+        f"{curr}{summary['profit']:,.2f}"
+    )
 
-        st.metric(
-            "📈 Net Profit",
-            f"{curr}{summary['profit']:,.2f}",
-            delta=f"{'+' if summary['profit'] >= 0 else ''}{curr}{summary['profit']:,.2f}"
-        )
+    c4.metric(
+        "🏆 Top Item",
+        summary["top_item"]
+    )
 
-    with c4:
-        st.metric(
-            "🏆 Top Item",
-            summary["top_item"]
-        )
+    st.markdown("---")
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # WEEKLY CHART
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     weekly = du.weekly_summary()
 
     col_left, col_right = st.columns([2, 1])
 
     with col_left:
 
-        st.markdown("""
-        <div class='section-header' style='font-size:16px'>
-            📅 Last 7 Days
-        </div>
-        """, unsafe_allow_html=True)
+        st.subheader("📅 Last 7 Days")
 
         if not weekly.empty:
 
@@ -94,60 +89,25 @@ else:
             fig.add_trace(go.Bar(
                 name="Sales",
                 x=dates_str,
-                y=weekly["Sales"],
-                marker_color="#0d5c44",
-                opacity=0.85
+                y=weekly["Sales"]
             ))
 
             fig.add_trace(go.Bar(
                 name="Expenses",
                 x=dates_str,
-                y=weekly["Expenses"],
-                marker_color="#e05c5c",
-                opacity=0.7
+                y=weekly["Expenses"]
             ))
 
             fig.add_trace(go.Scatter(
                 name="Profit",
                 x=dates_str,
                 y=weekly["Profit"],
-                mode="lines+markers",
-                line=dict(
-                    color="#f0a500",
-                    width=2.5
-                ),
-                marker=dict(size=7)
+                mode="lines+markers"
             ))
 
             fig.update_layout(
                 barmode="group",
-                plot_bgcolor="white",
-                paper_bgcolor="white",
-                font=dict(
-                    family="Plus Jakarta Sans, sans-serif",
-                    size=12
-                ),
-                margin=dict(
-                    l=10,
-                    r=10,
-                    t=10,
-                    b=10
-                ),
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
-                ),
-                height=280,
-                yaxis=dict(
-                    gridcolor="#f0f0f0",
-                    tickprefix=curr
-                ),
-                xaxis=dict(
-                    gridcolor="#f0f0f0"
-                )
+                height=320
             )
 
             st.plotly_chart(
@@ -158,19 +118,15 @@ else:
         else:
 
             st.info(
-                "No data yet. Add your first sale to see the chart!"
+                "No data yet. Add your first sale!"
             )
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # WEEKLY SUMMARY
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     with col_right:
 
-        st.markdown("""
-        <div class='section-header' style='font-size:16px'>
-            📊 This Week
-        </div>
-        """, unsafe_allow_html=True)
+        st.subheader("📊 This Week")
 
         if not weekly.empty:
 
@@ -208,19 +164,15 @@ else:
         else:
 
             st.info(
-                "Add sales to see weekly totals."
+                "No weekly data available."
             )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("---")
 
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
     # RECENT TRANSACTIONS
-    # ─────────────────────────────────────────────────────────────
-    st.markdown("""
-    <div class='section-header' style='font-size:16px'>
-        🕒 Recent Transactions
-    </div>
-    """, unsafe_allow_html=True)
+    # ─────────────────────────────────────────────
+    st.subheader("🕒 Recent Transactions")
 
     sales = du.load_sales()
 
@@ -267,17 +219,13 @@ else:
 
     else:
 
-        st.markdown("""
-        <div class='alert-green'>
-            No sales recorded yet.
-            Click <strong>➕ Add Sale</strong>
-            in the sidebar to log your first transaction!
-        </div>
-        """, unsafe_allow_html=True)
+        st.info(
+            "No sales recorded yet."
+        )
 
-    # ─────────────────────────────────────────────────────────────
-    # LOW STOCK WARNING
-    # ─────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────
+    # LOW STOCK ALERTS
+    # ─────────────────────────────────────────────
     inventory = du.load_inventory()
 
     if not inventory.empty:
@@ -289,24 +237,13 @@ else:
 
         if not low.empty:
 
-            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("---")
 
-            st.markdown("""
-            <div class='section-header' style='font-size:16px'>
-                ⚠️ Low Stock Alerts
-            </div>
-            """, unsafe_allow_html=True)
+            st.subheader("⚠️ Low Stock Alerts")
 
             for _, row in low.iterrows():
 
-                st.markdown(f"""
-                <div class='alert-red'>
-
-                    ⚠️ <strong>{row['item']}</strong>
-                    is running low —
-                    only {row['quantity']} {row['unit']} left
-                    (alert threshold:
-                    {row['low_stock_alert']})
-
-                </div>
-                """, unsafe_allow_html=True)
+                st.warning(
+                    f"{row['item']} is running low — "
+                    f"{row['quantity']} {row['unit']} left"
+                )
