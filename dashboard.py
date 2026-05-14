@@ -17,6 +17,15 @@ def show():
     summary = du.today_summary()
 
     curr = summary["currency"]
+    settings = du.load_settings()
+
+if settings.get("premium"):
+
+    st.success("💎 Premium User")
+
+else:
+
+    st.warning("🆓 Free Plan")
 
     st.title(f"👋 Good day, {summary['stall_name']}")
 
