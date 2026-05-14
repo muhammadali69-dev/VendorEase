@@ -38,11 +38,35 @@ def init_files():
 
 # ── Sales ────────────────────────────────────────────────────────────────────
 def load_sales() -> pd.DataFrame:
-    init_files()
-    df = pd.read_csv(SALES_FILE)
-    if not df.empty:
-        df["date"] = pd.to_datetime(df["date"])
-    return df
+
+    import sqlite3
+    import pandas as pd
+
+    conn = sqlite3.connect("vendorease.db")
+
+    try:
+        df = pd.read_sql_query(
+            "SELECT * FROM sales ORDER BY date DESC",
+            conn
+        )
+
+        if not df.empty:
+            df["date"] = pd.to_datetime(df["date"])
+
+        return df
+
+    except:
+        return pd.DataFrame(columns=[
+            "date",
+            "item",
+            "category",
+            "qty",
+            "price",
+            "total"
+        ])
+
+    finally:
+        conn.close()
 
 def add_sale(item: str, category: str, qty: float, price: float):
     init_files()
