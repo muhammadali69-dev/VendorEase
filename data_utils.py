@@ -37,58 +37,48 @@ def init_files():
         df.to_csv(SETTINGS_FILE, index=False)
 
 # ── Sales ────────────────────────────────────────────────────────────────────
-def load_sales() -> pd.DataFrame:
+def load_sales():
 
-    import sqlite3
     import pandas as pd
+    import streamlit as st
+    from supabase_client import supabase
 
-    conn = sqlite3.connect("vendorease.db")
+    user = st.session_state.get("user")
 
-    try:
-        df = pd.read_sql_query(
-            "SELECT * FROM sales ORDER BY date DESC",
-            conn
-        )
+    user_email = user.email if user else ""
 
-        if not df.empty:
-            df["date"] = pd.to_datetime(df["date"])
+    response = supabase.table("sales") \
+        .select("*") \
+        .eq("user_email", user_email) \
+        .execute()
 
-        return df
+    df = pd.DataFrame(response.data)
 
-    except:
-        return pd.DataFrame(columns=[
-            "date",
-            "item",
-            "category",
-            "qty",
-            "price",
-            "total"
-        ])
+    if not df.empty:
+        df["created_at"] = pd.to_datetime(df["created_at"])
 
-    finally:
-        conn.close()
+    return df
+def add_sale(item, category, qty, price):
 
-def add_sale(item: str, category: str, qty: float, price: float):
-    init_files()
-    df = load_sales()
-    new_row = pd.DataFrame([{
-        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    from datetime import datetime
+    import streamlit as st
+    from supabase_client import supabase
+
+    total = round(qty * price, 2)
+
+    user = st.session_state.get("user")
+
+    user_email = user.email if user else "unknown"
+
+    supabase.table("sales").insert({
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "item": item,
         "category": category,
         "qty": qty,
         "price": price,
-        "total": round(qty * price, 2)
-    }])
-    df = pd.concat([df, new_row], ignore_index=True)
-    df.to_csv(SALES_FILE, index=False)
-
-def add_sale(item: str, category: str, qty: float, price: float):
-
-    import sqlite3
-    from datetime import datetime
-
-    conn = sqlite3.connect("vendorease.db")
-    cursor = conn.cursor()
+        "total": total,
+        "user_email": user_email
+    }).execute()
 
     # Create table if it doesn't exist
     cursor.execute("""
