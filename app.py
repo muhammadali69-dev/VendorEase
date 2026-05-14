@@ -113,6 +113,21 @@ with st.sidebar:
     st.markdown("<small style='opacity:0.6'>Smart Profit & Sales Tracker<br>for Street Vendors</small>", unsafe_allow_html=True)
 
 # ── Page Routing ─────────────────────────────────────────────────────────────
+if "user" not in st.session_state:
+
+    menu = st.sidebar.selectbox(
+        "Menu",
+        ["Login", "Sign Up"]
+    )
+
+    if menu == "Login":
+        auth.login()
+
+    else:
+        auth.signup()
+
+    st.stop()
+
 if page == "🏠 Dashboard":
     import dashboard
     dashboard.show()
