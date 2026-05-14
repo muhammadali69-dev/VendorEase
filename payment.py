@@ -20,14 +20,36 @@ def premium_upgrade():
 
     st.subheader("💎 VendorEase Premium")
 
-    settings = supabase.table("settings").select("*").eq(
-        "user_email",
-        st.session_state["user"].email
-    ).execute()
+    user = st.session_state.get("user")
 
-    if settings.data and settings.data[0].get("premium"):
+    if not user:
 
-        st.success("🚀 Premium Account Active")
+        st.error("Please login first")
+        return
+
+    user_email = user.email
+
+    response = (
+        supabase.table("settings")
+        .select("*")
+        .eq("user_email", user_email)
+        .execute()
+    )
+
+    premium = False
+
+    if response.data:
+
+        premium = response.data[0].get(
+            "premium",
+            False
+        )
+
+    if premium:
+
+        st.success(
+            "🚀 Premium Account Active"
+        )
 
         return
 
@@ -47,22 +69,23 @@ Upgrade to Premium for:
 
     if st.button("Activate Premium 🚀"):
 
-        user = st.session_state.get("user")
+        try:
 
-        if not user:
+            supabase.table("settings").update({
+                "premium": True
+            }).eq(
+                "user_email",
+                user_email
+            ).execute()
 
-            st.error("Please login first")
-            return
+            st.success(
+                "🎉 Premium Activated Successfully!"
+            )
 
-        # TEST PAYMENT SIMULATION
+            st.rerun()
 
-        supabase.table("settings").update({
-            "premium": True
-        }).eq(
-            "user_email",
-            user.email
-        ).execute()
+        except Exception as e:
 
-        st.success(
-            "🎉 Payment Successful! Premium Activated."
-        )
+            st.error(
+                f"Activation failed: {e}"
+            )
