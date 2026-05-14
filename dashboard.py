@@ -14,7 +14,7 @@ def show():
 
     premium_status = settings.get("premium")
 
-    st.write("DEBUG PREMIUM:", premium_status)
+    
 
     if premium_status:
 
