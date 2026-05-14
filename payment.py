@@ -9,15 +9,6 @@ def premium_upgrade():
 
     st.subheader("💎 VendorEase Premium")
 
-    user = st.session_state.get("user")
-
-    if not user:
-
-        st.error("Please login first")
-        return
-
-    user_email = user.email
-
     st.info(
         """
 Upgrade to Premium for:
@@ -30,43 +21,29 @@ Upgrade to Premium for:
 """
     )
 
-    st.write("### ₹99 / month")
+    user = st.session_state.get("user")
+
+    if not user:
+
+        st.error("Please login first")
+        return
+
+    user_email = user.email
 
     if st.button("Activate Premium 🚀"):
 
-        try:
+        # FORCE PREMIUM
+        supabase.table("settings").update({
+            "premium": True
+        }).eq(
+            "user_email",
+            user_email
+        ).execute()
 
-            # UPDATE DATABASE
-            supabase.table("settings").update({
-                "premium": True
-            }).eq(
-                "user_email",
-                user_email
-            ).execute()
+        st.success(
+            "🎉 Premium Activated!"
+        )
 
-            # FORCE SESSION UPDATE
-            st.session_state["premium"] = True
-
-            st.success(
-                "🎉 Premium Activated Successfully!"
-            )
-
-        except Exception as e:
-
-            st.error(
-                f"Error: {e}"
-            )
-
-    # SHOW ACTIVE STATUS
-    settings = (
-        supabase.table("settings")
-        .select("*")
-        .eq("user_email", user_email)
-        .execute()
-    )
-
-    if settings.data:
-
-        if settings.data[0].get("premium") == True:
-
-            st.success("🚀 Premium Account Active")
+        st.write(
+            "Refresh the page to see Premium status."
+        )
