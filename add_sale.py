@@ -67,58 +67,10 @@ def show():
 
             total = qty * price
 
-            st.markdown(
-                f"""
-                <div style='background:#e8f5f0;
-                            border-radius:10px;
-                            padding:14px 18px;
-                            margin:8px 0'>
-
-                    <span style='font-size:13px;
-                                 color:#0a3d2e'>
-                        Total Amount
-                    </span>
-
-                    <br>
-
-                    <span style='font-size:26px;
-                                 font-weight:700;
-                                 color:#0d5c44'>
-                        {curr}{total:,.2f}
-                    </span>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            submitted = st.form_submit_button(
-                "✅ Record Sale",
-                use_container_width=True
-            )
-
-            if submitted:
-
-                if not item.strip():
-
-                    st.error("Please enter item name.")
-
-                elif price <= 0:
-
-                    st.error("Please enter valid price.")
-
-                else:
-
-                    du.add_sale(
-                        item.strip(),
-                        category,
-                        qty,
-                        price
-                    )
-
-                    st.success(
-                        f"Sale added successfully!"
-                    )
+           st.metric(
+    "Total Amount",
+    f"{curr}{total:,.2f}"
+)
 
     # ─────────────────────────────────────────────
     # TODAY SALES
