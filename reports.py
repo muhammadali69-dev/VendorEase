@@ -48,11 +48,11 @@ def show():
 
         period_sales = sales[
             (
-                sales["date"].dt.date >= start
+                sales["created_at"].dt.date >= start
             )
             &
             (
-                sales["date"].dt.date <= end
+               sales["created_at"].dt.date <= end
             )
         ]
 
@@ -63,11 +63,11 @@ def show():
 
         period_exp = expenses[
             (
-                expenses["date"].dt.date >= start
+               expenses["created_at"].dt.date >= start
             )
             &
             (
-                expenses["date"].dt.date <= end
+               expenses["created_at"].dt.date <= end
             )
         ]
 
